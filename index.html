@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pump.fun Reality Check — 460 launches measured on-chain</title>
+<meta name="description" content="We measured 460 freshly launched pump.fun tokens straight from the on-chain bonding curve at ~1s resolution. 85% never exceed x1.20. Zero out of 460 reached x20. Entering at the launch price loses 20.4% per bet. Full method and raw numbers.">
+<meta property="og:title" content="Pump.fun Reality Check — 460 launches measured on-chain">
+<meta property="og:description" content="0 out of 460 tokens reached x20. 85% never exceed x1.20. The measured base rates for new pump.fun launches.">
+<meta property="og:type" content="article">
+<link rel="canonical" href="https://nypsus.github.io/pumpfun-reality-check/">
+<style>
+:root{
+  --bg:#08090c; --card:#0f1116; --card2:#13161d; --line:#1f2430;
+  --txt:#e8ebf2; --dim:#8b93a7; --dim2:#5d6478;
+  --acc:#3ddc97; --red:#ff5d6c; --amber:#ffb347;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:var(--sans);line-height:1.6;
+  -webkit-font-smoothing:antialiased;padding:0 20px}
+.wrap{max-width:860px;margin:0 auto;padding:56px 0 80px}
+.tag{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dim);border:1px solid var(--line);
+  border-radius:100px;padding:5px 12px;margin-bottom:26px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.12;letter-spacing:-.02em;font-weight:800;margin-bottom:18px}
+h1 em{font-style:normal;color:var(--acc)}
+.lede{font-size:17px;color:var(--dim);max-width:650px;margin-bottom:44px}
+.lede b{color:var(--txt);font-weight:600}
+.hero{background:linear-gradient(160deg,var(--card) 0%,var(--bg) 100%);
+  border:1px solid var(--line);border-radius:16px;padding:32px;margin-bottom:20px}
+.hero .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);margin-bottom:10px}
+.hero .big{font-size:clamp(42px,9vw,68px);font-weight:800;letter-spacing:-.03em;line-height:1;color:var(--red)}
+.hero .sub{color:var(--dim);margin-top:14px;font-size:15px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:48px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px}
+.stat .n{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+.stat .l{font-size:13px;color:var(--dim);line-height:1.45}
+.n.g{color:var(--acc)} .n.r{color:var(--red)} .n.a{color:var(--amber)}
+h2{font-size:22px;font-weight:700;letter-spacing:-.01em;margin:52px 0 8px}
+h2 .idx{font-family:var(--mono);font-size:13px;color:var(--dim2);margin-right:12px;font-weight:400}
+.note{color:var(--dim);font-size:15px;margin-bottom:22px;max-width:680px}
+table{width:100%;border-collapse:collapse;font-size:14px;margin-bottom:10px}
+th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--dim2);font-weight:500;padding:0 12px 10px 0;border-bottom:1px solid var(--line)}
+td{padding:11px 12px 11px 0;border-bottom:1px solid var(--line);vertical-align:top}
+td.num{font-family:var(--mono);text-align:right;padding-right:0;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+.mono{font-family:var(--mono);font-size:13px}
+.r{color:var(--red)} .g{color:var(--acc)} .a{color:var(--amber)} .d{color:var(--dim)}
+.bars{margin:22px 0 10px}
+.bar{display:flex;align-items:center;gap:14px;margin-bottom:9px;font-size:13px}
+.bar .k{width:92px;flex:none;font-family:var(--mono);color:var(--dim)}
+.bar .t{flex:1;height:22px;background:var(--card2);border-radius:5px;overflow:hidden;position:relative}
+.bar .f{height:100%;border-radius:5px;background:linear-gradient(90deg,#2a6f57,#3ddc97)}
+.bar .f.red{background:linear-gradient(90deg,#7a2b34,#ff5d6c)}
+.bar .v{width:104px;flex:none;text-align:right;font-family:var(--mono);color:var(--txt)}
+.quote{border-left:2px solid var(--acc);padding:4px 0 4px 18px;margin:26px 0;color:var(--dim);font-size:15px}
+.quote b{color:var(--txt)}
+.cta{background:linear-gradient(160deg,#101a16,#0b0d12);border:1px solid #1d3a2e;
+  border-radius:16px;padding:32px;margin-top:56px}
+.cta h3{font-size:20px;font-weight:700;margin-bottom:10px}
+.cta p{color:var(--dim);font-size:15px;margin-bottom:20px;max-width:620px}
+.cta a{display:inline-block;background:var(--acc);color:#04150e;text-decoration:none;
+  font-weight:700;font-size:15px;padding:13px 26px;border-radius:9px}
+.cta a:hover{background:#4ef0a8}
+footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--dim2);font-family:var(--mono);line-height:1.9}
+footer a{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <span class="tag">on-chain measurement · 12 oct 2026</span>
+
+  <h1>Zero out of 460 pump.fun launches reached <em>×20</em>.</h1>
+
+  <p class="lede">We measured <b>460 freshly launched pump.fun tokens</b>, read straight from the on-chain bonding curve at roughly <b>one-second resolution</b>. No opinion, no signal — the actual base rates. To break even on a single-token bet you would need 1 in 57.</p>
+
+  <div class="hero">
+    <div class="lbl">Net result of entering at the launch price</div>
+    <div class="big">−20.4%</div>
+    <div class="sub">per bet, across 460 tokens, with a −35% trailing stop and real fees (1.25% pump.fun + 1% execution + 0.0065 SOL fixed).</div>
+  </div>
+
+  <div class="grid">
+    <div class="stat"><div class="n r">85%</div><div class="l">of tokens <b>never</b> exceed ×1.20 after launch</div></div>
+    <div class="stat"><div class="n a">×1.00</div><div class="l">median peak after entry — half of them don't move at all</div></div>
+    <div class="stat"><div class="n">54%</div><div class="l">of entries land at the exact launch price (×1.00)</div></div>
+    <div class="stat"><div class="n g">6%</div><div class="l">of bets were winners across the full sample</div></div>
+  </div>
+
+  <h2><span class="idx">01</span>The distribution of peaks</h2>
+  <p class="note">Maximum multiple reached after entry, across 460 tokens measured live.</p>
+  <div class="bars">
+    <div class="bar"><span class="k">≥ ×1.20</span><span class="t"><span class="f" style="width:15%"></span></span><span class="v">15.0%</span></div>
+    <div class="bar"><span class="k">≥ ×1.50</span><span class="t"><span class="f" style="width:9.1%"></span></span><span class="v">9.1%</span></div>
+    <div class="bar"><span class="k">≥ ×2</span><span class="t"><span class="f" style="width:4.8%"></span></span><span class="v">4.8%</span></div>
+    <div class="bar"><span class="k">≥ ×3</span><span class="t"><span class="f" style="width:1.5%"></span></span><span class="v">1.5%</span></div>
+    <div class="bar"><span class="k">≥ ×5</span><span class="t"><span class="f red" style="width:0.43%"></span></span><span class="v">0.43%</span></div>
+    <div class="bar"><span class="k">≥ ×10</span><span class="t"><span class="f red" style="width:0.22%"></span></span><span class="v">0.22%</span></div>
+    <div class="bar"><span class="k">≥ ×20</span><span class="t"><span class="f red" style="width:0%"></span></span><span class="v r">0 / 460</span></div>
+  </div>
+
+  <h2><span class="idx">02</span>The break-even gap</h2>
+  <p class="note">Covering fixed costs requires a specific monster frequency at every tier. The measured column settles it.</p>
+  <table>
+    <thead><tr><th>Target monster</th><th class="num">Frequency required</th><th class="num">Frequency measured</th><th class="num">Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>≥ ×5</td><td class="num">1 in 148</td><td class="num">1 in 230</td><td class="num r">below threshold</td></tr>
+      <tr><td>≥ ×10</td><td class="num">1 in 299</td><td class="num">1 in 460</td><td class="num r">below threshold</td></tr>
+      <tr><td>≥ ×20</td><td class="num">1 in 57</td><td class="num">0 in 460</td><td class="num r">impossible</td></tr>
+      <tr><td>≥ ×50</td><td class="num">1 in 148</td><td class="num">0 in 460</td><td class="num r">impossible</td></tr>
+      <tr><td>≥ ×100</td><td class="num">1 in 299</td><td class="num">0 in 460</td><td class="num r">impossible</td></tr>
+    </tbody>
+  </table>
+  <p class="note mono d">95% upper bound on the ×20 rate with 0 successes in 460 trials: 0.65% (3/460). The break-even requirement is 1.76%. The optimistic bound sits 2.7× below profitability.</p>
+
+  <h2><span class="idx">03</span>Why "buying early" is not an edge</h2>
+  <p class="note">The pump.fun launch price is not scarce information. It is a constant, readable on-chain in about 200 ms (30 virtual SOL against 1.073 × 10¹⁵ virtual tokens).</p>
+  <div class="quote">
+    So you <b>can</b> enter at <b>×1.00</b> — and we actually do: <b>54%</b> of measured entries landed at the exact launch price. That is not skill. <b>It is easy precisely because nobody wants it.</b> The launch price is cheap for a reason.
+  </div>
+
+  <h2><span class="idx">04</span>Method</h2>
+  <table>
+    <tbody>
+      <tr><td>Source</td><td>On-chain bonding curve, read directly from the pool account — no third-party indexer, no displayed price</td></tr>
+      <tr><td>Resolution</td><td>≈ 1 s, batched reads (~200 ms for a batch of 100 tokens)</td></tr>
+      <tr><td>Detection</td><td>Outbound WebSocket on the pump.fun stream, no server infrastructure</td></tr>
+      <tr><td>Sample</td><td>460 tokens measured, 812 entries, 2 h 40 of live flow</td></tr>
+      <tr><td>Fee model</td><td>1.25% pump.fun + 1% execution + 0.0065 SOL fixed (Jito tip 0.005 + priority 0.0015)</td></tr>
+      <tr><td>Exit</td><td>−35% trailing stop, armed at +20%. Variants tested: TP ×1.5, −15% stop, break-even, force-buy</td></tr>
+      <tr><td>Reference price</td><td>SOL = $110.45 at measurement time</td></tr>
+    </tbody>
+  </table>
+  <p class="note mono d">Every exit variant tested loses money. No token-side signal separates from the base rate.</p>
+
+  <div class="cta">
+    <h3>Need this kind of measurement on your token, your pool, or your strategy?</h3>
+    <p>I build Solana on-chain measurement instruments: bonding-curve tracking, LP P&amp;L, flow analysis, token detection. Real data, exposed method, no signals sold.</p>
+    <a href="mailto:nypsus.business@gmail.com?subject=On-chain%20measurement%20request">Request an analysis →</a>
+  </div>
+
+  <footer>
+    Independent measurement, 12 October 2026 · No token, no signal, no sponsorship.<br>
+    The base rates published here describe a measured sample, not a prediction about any future token.<br>
+    <a href="https://github.com/Nypsus">github.com/Nypsus</a>
+  </footer>
+
+</div>
+</body>
+</html>
